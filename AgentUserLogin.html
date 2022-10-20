@@ -122,12 +122,19 @@
             participantCanToggleSelfWebcam: true,
             participantCanToggleSelfMic: true,
             screenShareEnabled: true,
-
+            
+            recording: {
+              enabled: true,
+              webhookUrl: "https://www.videosdk.live/callback",
+              awsDirPath: `/recordings/${meetingId}/`,
+              autoStart: false,
+          },
             permissions: {
                 //other permissions
                 changeLayout: true,
                 toggleParticipantWebcam: true,
                 toggleParticipantMic: true,
+                toggleRecording: true
             },
 
             joinScreen: {
@@ -135,6 +142,7 @@
                 title: "Safe Insurance Customer Service", // Meeting title
                 meetingUrl: window.location.href + meetingId, // Meeting joining url
             },
+            
             };
             
             console.log(config.micEnabled);
