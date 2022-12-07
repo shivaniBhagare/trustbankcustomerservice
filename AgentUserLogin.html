@@ -108,11 +108,16 @@
         request.onload = function(){
         
         var data = JSON.parse(this.response); 
-        //console.log('api',data);
+        console.log('api',data);
         //console.log('apimetting',data.MeetingID);
         const meeting = new VideoSDKMeeting();
         var meetingId = data.MeetingID;
+        var recordingValue = data.UserAllowForRecording;
+        console.log('UserAllowForRecording',data.UserAllowForRecording);
         
+        recordingValue = (recordingValue != "Not Allowed")
+        console.log(recordingValue,recordingValue);
+
         const config = {
             name:  data.AgentName,
             apiKey: "8473fd3e-3b56-41e1-9a33-574ba493dee4", 
@@ -124,7 +129,7 @@
             screenShareEnabled: true,
             
             recording: {
-              enabled: true,
+              enabled: recordingValue,
               webhookUrl: "https://www.videosdk.live/callback",
               awsDirPath: `/recordings/${meetingId}/`,
               autoStart: false,

@@ -66,13 +66,28 @@
                     <span class="check"></span><span class="labelName">Block</span>
                 </label>
                 </div>
-                <div class="passcodefield">
-                  <label style="padding-bottom: 5px;">Enter Passcode</label>
-                      <input type="text" class="form-control"  name="passcode"  #passcode="ngModel" 
-                      required>
-                  
-              </div>
             </div>
+            <div class="form-check">
+              <div class="headinglabel padding-top">
+                <i class="fa fa-stop-circle"></i>
+                <label>Use Recording</label>
+              </div>
+              <div class="recordingButton">
+                <label class="relevantRadio" style="color: #0000EE;">
+                  <input type="radio" value="true" name="recoding"   #recoding="ngModel">
+                  <span class="check"></span><span class="labelName">Allow</span>&nbsp;
+              </label>
+              <label class="relevantRadio" style="color: #0000EE;">
+                  <input type="radio" value="false" name="recoding" >
+                  <span class="check"></span><span class="labelName">Block</span>
+              </label>
+              </div>
+          </div>
+          <div class="passcodefield">
+            <label style="padding-bottom: 5px;">Enter Passcode</label>
+                <input type="text" class="form-control"  name="passcode"  #passcode="ngModel" 
+                required>
+          </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal" onclick="saveAllData()">Save</button>
@@ -83,75 +98,176 @@
       </div>
     </div>
   </div>
-
+  <div class="container">
+    <!-- Modal -->
+    <div class="modal fade" id="closedCall" role="dialog">
+      <div class="modal-dialog">
+      
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="hostname"></h4>
+          </div>
+           <p style="font-size: 20px;text-align: center;">Call Is closed</p>
+        </div>
+      </div>
+    </div>
+  </div>
   <script>
    
     function saveAllData() {
+      
       console.log('1 video');
       var script = document.createElement("script");
       script.type = "text/javascript";
 
-      var video = $("input[type='radio'][name='video']:checked").val();
-      var micro = $("input[type='radio'][name='microphone']:checked").val();
-      var passcode = $("input[type='text'][name='passcode']").val();
-        video = (video == "true");
-        micro = (micro == "true");
-      
+      var passcode = $("input[type='text'][name='passcode']").val().trim();
       console.log('passcode',passcode);
+      
+    script.addEventListener("load", function (event) {
+      //Get API
+      let request = new XMLHttpRequest();
+      const myHeaders = new Headers();
+      request.open('GET','https://cap-fsdemo-e2e-fsretail87.pegatsdemo.com/prweb/api/v1/cases/CAP-TRUSTBANK-WORK-GRP1 '+passcode,true)
+      request.setRequestHeader('Authorization',"Basic dHJ1c3RiYW5rQGNjOnJ1bGVzQDEyMzQ=")
+      request.onload = function(res){ 
+        console.log('sttaus code onload1',request.status);
+          if(request.status == 200){
 
-      script.addEventListener("load", function (event) {
-         
-        let request = new XMLHttpRequest();
-        request.open('GET','https://cap-fsdemo-e2e-fsretail87.pegatsdemo.com/prweb/api/v1/data/D_VideoCall?pyID='+passcode,true)
-        request.setRequestHeader('Authorization',"Basic dHJ1c3RiYW5rQGNjOnJ1bGVzQDEyMzQ=")
-        request.onload = function(){
 
+            var data = JSON.parse(this.response); 
+            console.log('In status code' ,data);
+
+            
+            const arr = request.getAllResponseHeaders().trim().split(/[\r\n]+/);
+              const headerMap = {};
+              arr.forEach((line) => {
+                const parts = line.split(': ');
+                const header = parts.shift();
+                const value = parts.join(': ');
+                headerMap[header] = value;
+            });
+
+            localStorage.removeItem('etag');
+            localStorage.setItem('etag', headerMap["etag"]);
+            
+            console.log(data.content.StatusOfTheCall);
+            var StatusOfTheCall = data.content.StatusOfTheCall;
+
+            if(StatusOfTheCall != "Closed"){
+              putAPIFunction(this.response,passcode);
+            }
+            else{
+              //TODO
+              $('#closedCall').modal('show');
+            }
+          }
+      }
+      request.onerror = function(){
         var data = JSON.parse(this.response); 
         console.log('api',data);
-        console.log('apimetting',data.MeetingID);
-        const meeting = new VideoSDKMeeting();
-        const meetingID = data.MeetingID;
-
-        const config = {
-            name:  data.CustomerName,
-            apiKey: "8473fd3e-3b56-41e1-9a33-574ba493dee4", 
-            meetingId: meetingID, 
-            micEnabled: micro,
-            webcamEnabled: video,
-            participantCanToggleSelfWebcam: true,
-            participantCanToggleSelfMic: true,
-            screenShareEnabled: true,
-
-            permissions: {
-                //other permissions
-                changeLayout: true,
-                toggleParticipantWebcam: true,
-                toggleParticipantMic: true,
-            },
-
-            joinScreen: {
-                visible: true, // Show the join screen ?
-                title: "Safe Insurance Customer Service", // Meeting title
-                meetingUrl: window.location.href + meetingID, // Meeting joining url
-            },
-            };
-            
-            console.log(config.micEnabled);
-            console.log(config.webcamEnabled);
-            meeting.init(config);
-        }
-        request.onerror = function(){
-          var data = JSON.parse(this.response); 
-          console.log('api',data);
-        }
-        request.send();
-      });
+      }
+      request.send();
+    });
     
     script.src = "https://sdk.videosdk.live/rtc-js-prebuilt/0.3.1/rtc-js-prebuilt.js";
     document.getElementsByTagName("head")[0].appendChild(script);
         
     }
-    function closeTab(){
+
+function putAPIFunction(first_data,passcode){
+
+  console.log('putAPi', first_data);
+  console.log('passcode',passcode);
+  //Put API
+  var recoding = $("input[type='radio'][name='recoding']:checked").val();
+  console.log('recoding',recoding);
+
+  if(recoding == 'true'){
+
+    var userAllowForRecording = "Allowed"
+  }
+  else{
+    var userAllowForRecording = "Not Allowed"
+  }
+
+  console.log('userAllowForRecording',userAllowForRecording);
+
+ 
+            let request = new XMLHttpRequest();
+            request.open('GET','https://cap-fsdemo-e2e-fsretail87.pegatsdemo.com/prweb/api/InteractionChannelSaveData/v1/saveuser/'+passcode+'?UsersAction='+userAllowForRecording,true)
+            request.setRequestHeader('Authorization',"Basic dHJ1c3RiYW5rQGNjOnJ1bGVzQDEyMzQ=");
+            
+            request.onload = function(){ 
+
+
+              first_data = JSON.parse(first_data); 
+
+              console.log(first_data);
+               
+              //var data = JSON.parse(this.response); 
+              console.log('1st API reponse',data);
+              if(request.status == 200){
+               console.log('seocnd'.data);
+               var data = data;
+
+                const meeting = new VideoSDKMeeting();
+                var meetingID = first_data.content.MeetingID;
+                var video = $("input[type='radio'][name='video']:checked").val();
+                var micro = $("input[type='radio'][name='microphone']:checked").val();
+                var passcode = $("input[type='text'][name='passcode']").val().trim();
+                
+
+                  video = (video == "true");
+                  micro = (micro == "true");
+                  recoding = (recoding == "true");
+                  
+                 console.log('status code onload 22 meetingID',meetingID);
+
+                 const config = {
+                  name:  first_data.content.CustomerName,
+                  apiKey: "8473fd3e-3b56-41e1-9a33-574ba493dee4", 
+                  meetingId: meetingID, 
+                  micEnabled: micro,
+                  webcamEnabled: video,
+                  participantCanToggleSelfWebcam: true,
+                  participantCanToggleSelfMic: true,
+                  screenShareEnabled: true,
+                  
+                //   recording: {
+                //     enabled: recoding,
+                //     webhookUrl: "https://www.videosdk.live/callback",
+                //     awsDirPath: `/recordings/${meetingID}/`,
+                //     autoStart: false,
+                // },
+                  permissions: {
+                      //other permissions
+                      changeLayout: true,
+                      toggleParticipantWebcam: true,
+                      toggleParticipantMic: true,
+                  },
+
+                  joinScreen: {
+                      visible: true, // Show the join screen ?
+                      title: "Safe Insurance Customer Service", // Meeting title
+                      meetingUrl: window.location.href + meetingID, // Meeting joining url
+                  },
+                  
+                  };
+                  console.log(config.micEnabled);
+                  console.log(config.webcamEnabled);
+                  console.log(config);
+                  meeting.init(config);
+              }
+            }  
+           
+            request.send();
+            
+ 
+}
+
+function closeTab(){
         window.close();
     }
 </script>
@@ -165,6 +281,7 @@
  }
     .labelName {
         margin-left: 10px;
+        color: #fff;
     }
     .relevantRadio {
         margin-left: 10px;
