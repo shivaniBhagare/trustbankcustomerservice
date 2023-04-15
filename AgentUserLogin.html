@@ -88,7 +88,7 @@
    
     function saveAllData() {
 
-      console.log('1 video');
+      //console.log('1 video');
       var script = document.createElement("script");
       script.type = "text/javascript";
 
@@ -108,15 +108,15 @@
         request.onload = function(){
         
         var data = JSON.parse(this.response); 
-        console.log('api',data);
+        //console.log('api',data);
         //console.log('apimetting',data.MeetingID);
         const meeting = new VideoSDKMeeting();
         var meetingId = data.MeetingID;
         var recordingValue = data.UserAllowForRecording;
-        console.log('UserAllowForRecording',data.UserAllowForRecording);
+        //console.log('UserAllowForRecording',data.UserAllowForRecording);
         
         recordingValue = (recordingValue != "Not Allowed")
-        console.log(recordingValue,recordingValue);
+        //console.log(recordingValue,recordingValue);
 
         const config = {
             name:  data.AgentName,
@@ -150,19 +150,19 @@
             
             };
             
-            console.log(config.micEnabled);
-            console.log(config.webcamEnabled);
+            //console.log(config.micEnabled);
+            //console.log(config.webcamEnabled);
 
             meeting.init(config);
         }
         request.onerror = function(){
           var data = JSON.parse(this.response); 
-          console.log('api',data);
+          //console.log('api',data);
         }
         request.send();
       });
     
-    script.src = "https://sdk.videosdk.live/rtc-js-prebuilt/0.3.1/rtc-js-prebuilt.js";
+    script.src = "https://sdk.videosdk.live/rtc-js-prebuilt/0.3.29/rtc-js-prebuilt.js";
     document.getElementsByTagName("head")[0].appendChild(script);
         
     }

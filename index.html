@@ -118,12 +118,12 @@
    
     function saveAllData() {
       
-      console.log('1 video');
+      //console.log('1 video');
       var script = document.createElement("script");
       script.type = "text/javascript";
 
       var passcode = $("input[type='text'][name='passcode']").val().trim();
-      console.log('passcode',passcode);
+      //console.log('passcode',passcode);
       
     script.addEventListener("load", function (event) {
       //Get API
@@ -132,12 +132,12 @@
       request.open('GET','https://cap-fsdemo-e2e-fsretail87.pegatsdemo.com/prweb/api/v1/cases/CAP-TRUSTBANK-WORK-GRP1 '+passcode,true)
       request.setRequestHeader('Authorization',"Basic dHJ1c3RiYW5rQGNjOnJ1bGVzQDEyMzQ=")
       request.onload = function(res){ 
-        console.log('sttaus code onload1',request.status);
+        //console.log('sttaus code onload1',request.status);
           if(request.status == 200){
 
 
             var data = JSON.parse(this.response); 
-            console.log('In status code' ,data);
+            //console.log('In status code' ,data);
 
             
             const arr = request.getAllResponseHeaders().trim().split(/[\r\n]+/);
@@ -152,7 +152,7 @@
             localStorage.removeItem('etag');
             localStorage.setItem('etag', headerMap["etag"]);
             
-            console.log(data.content.StatusOfTheCall);
+            //console.log(data.content.StatusOfTheCall);
             var StatusOfTheCall = data.content.StatusOfTheCall;
 
             if(StatusOfTheCall != "Closed"){
@@ -166,23 +166,18 @@
       }
       request.onerror = function(){
         var data = JSON.parse(this.response); 
-        console.log('api',data);
       }
       request.send();
     });
     
-    script.src = "https://sdk.videosdk.live/rtc-js-prebuilt/0.3.1/rtc-js-prebuilt.js";
+    script.src = "https://sdk.videosdk.live/rtc-js-prebuilt/0.3.29/rtc-js-prebuilt.js";
     document.getElementsByTagName("head")[0].appendChild(script);
         
     }
 
 function putAPIFunction(first_data,passcode){
-
-  console.log('putAPi', first_data);
-  console.log('passcode',passcode);
   //Put API
   var recoding = $("input[type='radio'][name='recoding']:checked").val();
-  console.log('recoding',recoding);
 
   if(recoding == 'true'){
 
@@ -191,9 +186,6 @@ function putAPIFunction(first_data,passcode){
   else{
     var userAllowForRecording = "Not Allowed"
   }
-
-  console.log('userAllowForRecording',userAllowForRecording);
-
  
             let request = new XMLHttpRequest();
             request.open('GET','https://cap-fsdemo-e2e-fsretail87.pegatsdemo.com/prweb/api/InteractionChannelSaveData/v1/saveuser/'+passcode+'?UsersAction='+userAllowForRecording,true)
@@ -204,12 +196,12 @@ function putAPIFunction(first_data,passcode){
 
               first_data = JSON.parse(first_data); 
 
-              console.log(first_data);
+              ////console.log(first_data);
                
               //var data = JSON.parse(this.response); 
-              console.log('1st API reponse',data);
+              //console.log('1st API reponse',data);
               if(request.status == 200){
-               console.log('seocnd'.data);
+               //console.log('seocnd'.data);
                var data = data;
 
                 const meeting = new VideoSDKMeeting();
@@ -223,7 +215,7 @@ function putAPIFunction(first_data,passcode){
                   micro = (micro == "true");
                   recoding = (recoding == "true");
                   
-                 console.log('status code onload 22 meetingID',meetingID);
+                 //console.log('status code onload 22 meetingID',meetingID);
 
                  const config = {
                   name:  first_data.content.CustomerName,
@@ -255,9 +247,9 @@ function putAPIFunction(first_data,passcode){
                   },
                   
                   };
-                  console.log(config.micEnabled);
-                  console.log(config.webcamEnabled);
-                  console.log(config);
+                  //console.log(config.micEnabled);
+                  //console.log(config.webcamEnabled);
+                  //console.log(config);
                   meeting.init(config);
               }
             }  
